@@ -37,7 +37,8 @@ class Hdmi:
         PyGame Surface (self.lcd) """
         
         diff = lcd_dim - image.shape[direction]
-        print("Upscaled size doesn't match the screen.\nOld size: {}".format(image.shape[:2]))
+        print("Upscaled size doesn't match the screen.\nOld size: {}"
+              .format(image.shape[:2]))
         
         # Let's remove some cols or rows
         if(diff > 0):
