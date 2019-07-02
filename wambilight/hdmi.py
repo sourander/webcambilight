@@ -37,12 +37,10 @@ class Hdmi:
         PyGame Surface (self.lcd) """
         
         diff = lcd_dim - image.shape[direction]
-        print("Upscaled size doesn't match the screen.\nOld size: {}"
-              .format(image.shape[:2]))
         
         # Let's remove some cols or rows
         if(diff > 0):
-            print("Adding col/row. Diff: {}, Axis:{}".format(diff, direction))
+            #print("Adding col/row. Diff: {}, Axis:{}".format(diff, direction))
             if(direction==0):
                 new_row = np.zeros((diff, self.w, 3), dtype="uint8")
                 image = np.concatenate((image.copy(), new_row), direction)
@@ -52,11 +50,11 @@ class Hdmi:
         
         # ...or maybe we want to remove cols or rows
         elif(diff < 0):
-            print("Remove col/row. Diff: {}, Axis: {}".format(diff, direction))
+            #print("Remove col/row. Diff: {}, Axis: {}".format(diff, direction))
             diff = abs(diff)
             image = np.delete(image, (range(0, diff)), axis=direction)
         
-        print("New size: {}".format(image.shape[:2]))
+        #print("New size: {}".format(image.shape[:2]))
        
         return image    
           
@@ -69,6 +67,8 @@ class Hdmi:
         # Convert grayscale image to colour
         if(arrayimg.ndim < 3):
             arrayimg = cv2.cvtColor(arrayimg,cv2.COLOR_GRAY2RGB)
+            
+        arrayimg = cv2.cvtColor(arrayimg, cv2.COLOR_BGR2RGB)
     
         (height, width) = arrayimg.shape[:2]
         

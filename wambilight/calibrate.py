@@ -3,28 +3,29 @@ import imutils
 import cv2
 from imutils.perspective import four_point_transform
 
-def calibrate(image, hdmi):
-    """ Find TV from image. """
-    ratio = image.shape[0] / 540.0
+def calibrate(image, hdmi, webcamres=540):
+    # Find TV from image. 
+    # image : a high quality still (e.g. 1920x1080)
+    # webcamres : stream quality (e.g. 720p, 540p) 
+    
+    ratio = image.shape[0] / float(webcamres)
     orig = image.copy()
-    image = imutils.resize(image, height = 540)
+    image = imutils.resize(image, height = webcamres)
 
-
-    """ ISOLATE GREEN CHANNEL for better contrast """
-    # Green = Green channel - Blue channel - Red channel 
+    # Subtract B&R from G for higher contrast
     (b, g, r) = cv2.split(image)
     g = cv2.subtract(cv2.subtract(g, b), r)
 
-    # Blur and find edges. Blur 3 or 5 gets best results.
+    # Blur and find edges.
     g = cv2.GaussianBlur(g,(3,3),cv2.BORDER_DEFAULT) 
     edged = imutils.auto_canny(g)
 
-    # Find the contours in the edged image. Keep 5 largest.
+    # Find and sort the contours
     cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
     cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:5]
 
-    # Loop over the contours. Approx and find 4 corners.
+    # Find a contour with 4 corners.
     for c in cnts:
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.01 * peri, True)
@@ -48,9 +49,5 @@ def calibrate(image, hdmi):
     # view of the original image
     pts = pts.reshape(4, 2) * ratio
     
-    # Show the 'warped' original image to verify that things went well
-    warped = four_point_transform(orig, pts)
-    hdmi.drawimg(warped)
-    
-    time.sleep(4)
     return pts
+
