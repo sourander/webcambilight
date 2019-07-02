@@ -11,7 +11,8 @@ def calibrate(image, hdmi, webcamres=540):
     ratio = image.shape[0] / float(webcamres)
     orig = image.copy()
     image = imutils.resize(image, height = webcamres)
-
+    timetohold = 4 # For displaying the image to user
+    
     # Subtract B&R from G for higher contrast
     (b, g, r) = cv2.split(image)
     g = cv2.subtract(cv2.subtract(g, b), r)
@@ -39,15 +40,20 @@ def calibrate(image, hdmi, webcamres=540):
         (x, y, w, h) = cv2.boundingRect(approx)
         cv2.putText(image, "TV here?", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, (0, 255, 255), 2)
-        hdmi.drawimg(image)
-        time.sleep(4)
+        # Display the image for user for n seconds.
+
     else:
         print("No TV found in the image. Adjust settings.\nReturning 'None' cornerpoints.")
         return None
 
-    # apply the four point transform to obtain a top-down
-    # view of the original image
+    # Display the image for evaluation
+    print("Displaying the calibration image for {} seconds".format(timetohold))
+    hdmi.drawimg(image)
+    time.sleep(timetohold)
+
+    # Scale the cornerpoints to match webcamres
     pts = pts.reshape(4, 2) * ratio
-    
+        
     return pts
+
 

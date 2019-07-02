@@ -1,5 +1,4 @@
 import numpy as np
-import cv2
 from imutils.perspective import four_point_transform
 from timeit import default_timer as timer
 

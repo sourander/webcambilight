@@ -2,11 +2,13 @@
 
 # Import packages
 import cv2
-from wambilight import Hdmi, Ledupdater, calibrate
+import imutils
+from wambilight import Hdmi, Ledupdater, ConfigIO, calibrate
 
 
 # Instansiate Hdmi object (a PyGame Surface)
 hdmi = Hdmi()
+config = ConfigIO()
 webcamres = 540
 
 """ REPLACE THIS WITH WEBCAM IMAGE """
@@ -21,5 +23,6 @@ cornerpoints = calibrate(image, hdmi, webcamres)
 leds = Ledupdater(cornerpoints)
 
 image = cv2.imread("images/tv-test-3-nemo.png")
+image = imutils.resize(image, height = webcamres)
 
 # usage leds.warp_and_draw(image, hdmi)
