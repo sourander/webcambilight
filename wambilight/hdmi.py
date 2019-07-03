@@ -25,11 +25,7 @@ class Hdmi:
     def fill(self, r,g,b):
         self.lcd.fill((r,g,b))
         pygame.display.flip()
-    
-    
-    def update(self):
-        pygame.display.flip()
-        
+           
     
     def crop_or_pad(self, image, lcd_dim, direction):
         """ Add padding or remove rows/cols from image to 
@@ -52,7 +48,6 @@ class Hdmi:
             diff = abs(diff)
             image = np.delete(image, (range(0, diff)), axis=direction)
         
-
         return image    
           
           

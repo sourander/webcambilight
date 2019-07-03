@@ -4,9 +4,13 @@ from imutils.perspective import four_point_transform
 from timeit import default_timer as timer
 from scipy.ndimage.interpolation import shift
 
+""" 
+import Adafruit_WS2801
+import Adafruit_GPIO.SPI as SPI
+"""
 
 class Ledupdater:
-    def __init__(self, cornerpoints, blendvalue):
+    def __init__(self, cornerpoints, blendvalue, hdmi):
         self.pts = cornerpoints
         # NOTE! Do not count corner LED's twice
         self.vertleds = 60
@@ -15,24 +19,10 @@ class Ledupdater:
         self.blendamount = blendvalue
         self.history = None
         self.generatehistory(mode=1)
+        self.hdmi = hdmi
                                   
 
-    def generatehistory(self, mode):
-        # Getter
-        lenght = self.led_count
-        height = self.blendamount
-        
-        if (height < 2):
-            pass
-        
-        if (mode == 1):
-            history =  np.zeros((lenght, height, 3), dtype='uint8')
-        elif (mode == 2):
-            history = np.arange((lenght * height * 3), dtype='uint8').reshape(lenght, 5, 3)
-
-        self.history = history
-
-    def warp_and_draw(self, image, hdmi):
+    def warp_and_draw(self, image):
         # TIMER
         start = timer()
 
@@ -55,7 +45,7 @@ class Ledupdater:
             ...with the cost of lag. Blending 5 images adds around
             20 milliseconds of delay to the code. """
         if (self.blendamount >= 2):
-            blend = self.blendhistory(edgepixels)
+            edgepixels = self.blendhistory(edgepixels)
             
         
         # TIMER
@@ -63,8 +53,17 @@ class Ledupdater:
         print(round((end - start)*1000, 2), "milliseconds")
         
         resized[1:-1,1:-1] = 0
-        hdmi.drawimg(resized)
+        self.hdmi.drawimg(resized)
 
+    """ DRAFT """
+    def show_on_ws2801(self, pixelrow):
+        pixel_count = self.led_count
+        
+
+        for i in range(pixel_count):
+            (b,g,r) = pixelrow[0].reshape(3,1)
+            pixels.set_pixel_rgb(i, r, g, b)
+    """ DRAFT """
 
     def blendhistory(self, new_entry):
         # Blend current edgepixeldata with n-amount of previous
@@ -87,6 +86,26 @@ class Ledupdater:
                 
         return blend
         
+    """ 
+    BELOW THIS LINE ARE FUNCTIONS THAT ARE SUPPORTING __INIT__
+    OR FOR DEBUGGING/PRINTING STUFF TO CONSOLE
+    """    
+        
+        
+    def generatehistory(self, mode):
+        # Getter
+        lenght = self.led_count
+        height = self.blendamount
+        
+        if (height < 2):
+            pass
+        
+        if (mode == 1):
+            history =  np.zeros((lenght, height, 3), dtype='uint8')
+        elif (mode == 2):
+            history = np.arange((lenght * height * 3), dtype='uint8').reshape(lenght, 5, 3)
+
+        self.history = history
 
     def printhistory(self):
         # This is for debugging
