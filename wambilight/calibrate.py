@@ -2,15 +2,44 @@ import time
 import imutils
 import cv2
 from imutils.perspective import four_point_transform
+from scipy.spatial import distance as dists
 
-def calibrate(image, hdmi, calibres):
+def nudge_towards_centroid(points, padding):
+    """
+    Make the cornerpoint area n %-units smaller 
+    
+    Useful for hiding problems in the image edged
+    e.g. captions/letterbox 
+    """
+    
+    # Centroid of bounding box
+    centroid = points.mean(axis=0)
+    
+    # Calculate Euclidean distances centroid <-> corners
+    distances = []
+    for i in range(4):
+        distances.append(dists.euclidean(points[i], centroid))
+    
+    # Keep the smallest distance. Create n %-units nudge.
+    nudge = min(distances) * (padding / 100)
+    
+    # Perform nudge for each corner
+    for p in points:
+        for i in range(2):
+            if p[i] > centroid[i]:
+                p[i] -= nudge
+            else:
+                p[i]+= nudge
+                
+    return points
+
+def calibrate(image, hdmi, calibres, timetohold = 4, padding=0):
     # Find TV from image. 
     # image should be in videores (e.g. 720p)
     # calibres : resolution used in this method (e.g. 540p) 
     
     ratio = image.shape[0] / float(calibres)
     image = imutils.resize(image, height = calibres)
-    timetohold = 4 # For displaying the image to user
     
     # Subtract B&R from G for higher contrast
     (b, g, r) = cv2.split(image)
@@ -52,6 +81,10 @@ def calibrate(image, hdmi, calibres):
     # from calibres -> videores
     # e.g. 540p -> 720p
     pts = pts.reshape(4, 2) * ratio
+    
+    if (padding > 0):
+        pts = nudge_towards_centroid(pts, padding)
+    
     return pts
 
 

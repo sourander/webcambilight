@@ -2,15 +2,35 @@ import numpy as np
 import cv2
 from imutils.perspective import four_point_transform
 from timeit import default_timer as timer
-
+from scipy.ndimage.interpolation import shift
 
 
 class Ledupdater:
-    def __init__(self, cornerpoints):
+    def __init__(self, cornerpoints, blendvalue):
         self.pts = cornerpoints
+        # NOTE! Do not count corner LED's twice
         self.vertleds = 60
-        self.horleds = 30
-       
+        self.horleds = 38
+        self.led_count = self.vertleds*2 + self.horleds*2
+        self.blendamount = blendvalue
+        self.history = None
+        self.generatehistory(mode=1)
+                                  
+
+    def generatehistory(self, mode):
+        # Getter
+        lenght = self.led_count
+        height = self.blendamount
+        
+        if (height < 2):
+            pass
+        
+        if (mode == 1):
+            history =  np.zeros((lenght, height, 3), dtype='uint8')
+        elif (mode == 2):
+            history = np.arange((lenght * height * 3), dtype='uint8').reshape(lenght, 5, 3)
+
+        self.history = history
 
     def warp_and_draw(self, image, hdmi):
         # TIMER
@@ -18,34 +38,83 @@ class Ledupdater:
 
         warped = four_point_transform(image, self.pts)
 
-        resized = cv2.resize(warped, (self.vertleds, self.horleds), 
+        resized = cv2.resize(warped, (self.vertleds, self.horleds+2), 
                              interpolation = cv2.INTER_CUBIC) 
         
         # Grab edge pixels into an array
-        top = resized[0,:]
-        right = resized[1:,-1]
-        bottom = np.flip(resized[-1,1:-1])
-        left = np.flip(resized[1:,0])
-        edgepixels = np.concatenate((top, right, bottom, left), axis=0)
+        # len(edgepixels) equals self.led_count
+        top = resized[:1,:].transpose(1,0,2)
+        bottom = np.flip(resized[-1:,:].transpose(1,0,2))
+        right = resized[1:-1,-1:]
+        left = np.flip(resized[1:-1,:1])
+        edgepixels = np.concatenate((top, right, bottom, left))
+      
+        """ NOTE! Setting blend value gives nice smoothing of pixels
+            based on previous pixels values.
+            
+            ...with the cost of lag. Blending 5 images adds around
+            20 milliseconds of delay to the code. """
+        if (self.blendamount >= 2):
+            blend = self.blendhistory(edgepixels)
+            
         
         # TIMER
         end = timer()
         print(round((end - start)*1000, 2), "milliseconds")
         
+        resized[1:-1,1:-1] = 0
         hdmi.drawimg(resized)
+
+
+    def blendhistory(self, new_entry):
+        # Blend current edgepixeldata with n-amount of previous
+        # images. 
+
+        # Getter
+        lenght = self.led_count
+        history = self.history
+
+        # Nudge history 1 pixel down. Add new entry.
+        history = shift(history, (0,1,0), cval=0)
+        history[:,:1] = new_entry
+                
+        # Setter
+        self.history = history
+                
+        # Calculate mean of the last n entries in history.
+        blend = np.mean((history),axis=1, dtype='uint16').reshape(lenght,1,3)
+        blend = blend.astype('uint8')
+                
+        return blend
+        
+
+    def printhistory(self):
+        # This is for debugging
+        
+        # Getter
+        history = self.history
+        
+        for i in range(1, history.shape[1]):
+            print("1x4 element of history {}".format(history[:,0:1][4]))
+            print("2x4 element of history {}".format(history[:,1:2][4]))
+            print("3x4 element of history {}".format(history[:,2:3][4]))
+            print("4x4 element of history {}".format(history[:,3:4][4]))
+            print("5x4 element of history {}".format(history[:,4:5][4]))
+            print(" ")
+        
+        self.printmean()
+        
+    def printmean(self):
+        # Getter
+        history = self.history
+        lenght = self.led_count
+        temp = np.mean((history),axis=1, dtype='uint16').reshape(lenght,1,3)
+        temp = temp.astype('uint8')
+        print("Blend of nx4: {}".format(temp[:,0:1][4]))
+        
+            
         
 
 
-"""
-FIRST METHOD OF GETTING EDGE PIXELS
+    
 
-image = np.array([[ 0,  1,  2,  3,  4,  5],
-                  [ 6,  7,  8,  9, 10, 11],
-                  [12, 13, 14, 15, 16, 17],
-                  [18, 19, 20, 21, 22, 23],
-                  [24, 25, 26, 27, 28, 29],
-                  [30, 31, 32, 33, 34, 35]])
-
-
-
-"""

@@ -17,17 +17,21 @@ image = cv2.imread("images/tv-test-3.png")
 image = imutils.resize(image, height = videores)
 """ REPLACE THIS WITH WEBCAM IMAGE """
 
-
 # Find TV's cornerpoints from image using an image
 # downscaled to calibres
-cornerpoints = calibrate(image, hdmi, calibres)
+cornerpoints = calibrate(image, hdmi, calibres, timetohold=2, padding=0)
 
 # Instansiate Ledupdater
-leds = Ledupdater(cornerpoints)
+leds = Ledupdater(cornerpoints, blendvalue=1)
 
 """ REPLACE THIS WITH WEBCAM VIDEO STREAM """
-image = cv2.imread("images/tv-test-3-nemo.png")
-image = imutils.resize(image, height = videores)
+stream = cv2.imread("images/tv-test-3-nemo.png")
+stream = imutils.resize(stream, height = videores)
 """ REPLACE THIS WITH WEBCAM VIDEO STREAM """
 
-leds.warp_and_draw(image, hdmi)
+def ten_times():
+    for i in range(0,10):
+        leds.warp_and_draw(stream, hdmi)
+
+
+leds.warp_and_draw(stream, hdmi)

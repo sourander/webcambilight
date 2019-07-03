@@ -38,7 +38,7 @@ class Hdmi:
         
         diff = lcd_dim - image.shape[direction]
         
-        # Let's remove some cols or rows
+        # Let's remove some cols or rows (or else-if add them)
         if(diff > 0):
             #print("Adding col/row. Diff: {}, Axis:{}".format(diff, direction))
             if(direction==0):
@@ -47,15 +47,12 @@ class Hdmi:
             else:
                 new_col = np.zeros((self.h, diff, 3), dtype="uint8")
                 image = np.concatenate((image.copy(), new_col), direction)
-        
-        # ...or maybe we want to remove cols or rows
         elif(diff < 0):
             #print("Remove col/row. Diff: {}, Axis: {}".format(diff, direction))
             diff = abs(diff)
             image = np.delete(image, (range(0, diff)), axis=direction)
         
-        #print("New size: {}".format(image.shape[:2]))
-       
+
         return image    
           
           
