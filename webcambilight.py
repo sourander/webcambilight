@@ -3,41 +3,51 @@
 # Import packages
 import cv2
 import imutils
-from wambilight import Hdmi, Ledupdater, ConfigIO, calibrate
+from wambilight import Hdmi, Ledupdater, ConfigIO, calibrate, WebcamVideoStream
+import time
+from imutils.video import FPS
 
+# Configuration
+videores = 480
+calibres = 480
 
-""" REPLACE THIS WITH WEBCAM IMAGE """
-videores = 720
-calibres = 540
+""" CODE BEGINS """
 
-image = cv2.imread("images/tv-test-3.png")
-image = imutils.resize(image, height = videores)
+def snapshot(exposure=30, gain=400, focus=15):
+    webcam = WebcamVideoStream(exposure, gain, focus, src=0).start()
+    (w, h) = webcam.getres()
+    time.sleep(2.0)
+    frame = webcam.read()
+    hdmi.drawimg(frame)
+    webcam.stop()
+    return frame
 
-stream = cv2.imread("images/tv-test-3-nemo.png")
-stream = imutils.resize(stream, height = videores)
-""" REPLACE THIS WITH WEBCAM IMAGE """
+def test(exposure=30, gain=800, focus=15):
+    webcam = WebcamVideoStream(exposure, gain, focus, src=0).start()
+    time.sleep(2.0)
+    for i in range (0,90):
+        frame = webcam.read()
+        leds.warp_and_draw(frame)
+    webcam.stop()
 
-""" ::::::::: Instansiate objects ::::::::::
-
--Hdmi is PyGame surface for displaying images on HDMI output
-
--Config is for r/w cornerpoints to/from file
-
--Stripcontroller controls WS2801 RGB LED strip
-
--Ledupdater generates edgepixels and uses Stripcontroller to/from
- add those RGB values to led strip
-
-"""
 hdmi = Hdmi()
 config = ConfigIO()
-cornerpoints = calibrate(image, hdmi, calibres, timetohold=2, padding=0)
-leds = Ledupdater(cornerpoints, 1, hdmi)
+
+# Generate image for calibration. Screen around 150cd/m
+# image = snapshot(exposure=400, gain=30, focus=10)
+
+# Read items
+image = cv2.imread("images/test.png")
 
 
-def ten_times():
-    for i in range(0,10):
-        leds.warp_and_draw(stream)
+cornerpoints = calibrate(image, hdmi, image.shape[0], timetohold=2, padding=0,  blur=3, perimultiplier=0.01)
+
+leds = Ledupdater(cornerpoints, hdmi, debugging=True)
+
+# For testing, do...
+# test()
 
 
-
+# Nice test data
+# eso = cv2.imread("images/eso.png")
+# yle = cv2.imread("images/yle-tv.png")

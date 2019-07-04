@@ -33,7 +33,7 @@ def nudge_towards_centroid(points, padding):
                 
     return points
 
-def calibrate(image, hdmi, calibres, timetohold = 4, padding=0):
+def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimultiplier=0.01):
     # Find TV from image. 
     # image should be in videores (e.g. 720p)
     # calibres : resolution used in this method (e.g. 540p) 
@@ -43,10 +43,12 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0):
     
     # Subtract B&R from G for higher contrast
     (b, g, r) = cv2.split(image)
+    """ ACTIVATE AGAIN WHEN R, G, B images have more difference.
     g = cv2.subtract(cv2.subtract(g, b), r)
-
+    """
+    
     # Blur and find edges.
-    g = cv2.GaussianBlur(g,(3,3),cv2.BORDER_DEFAULT) 
+    g = cv2.GaussianBlur(g,(blur,blur),cv2.BORDER_DEFAULT) 
     edged = imutils.auto_canny(g)
 
     # Find and sort the contours
@@ -54,10 +56,10 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0):
     cnts = imutils.grab_contours(cnts)
     cnts = sorted(cnts, key = cv2.contourArea, reverse = True)[:5]
 
-    # Find a contour with 4 corners.
+    # Find a contour with 4 corners
     for c in cnts:
         peri = cv2.arcLength(c, True)
-        approx = cv2.approxPolyDP(c, 0.01 * peri, True)
+        approx = cv2.approxPolyDP(c, perimultiplier * peri, True)
         print("Amount of corners {}".format(len(approx)))
         if len(approx) == 4:
             pts = approx
