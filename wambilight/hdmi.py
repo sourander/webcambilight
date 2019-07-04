@@ -27,52 +27,52 @@ class Hdmi:
         pygame.display.flip()
            
     
-    def crop_or_pad(self, image, lcd_dim, direction):
-        """ Add padding or remove rows/cols from image to 
-        make sure that image is exactly fitting to 
-        PyGame Surface (self.lcd) """
-        
+    def pad(self, image, lcd_dim, direction):
+        """ Add some letterboxing to the image
+        direction 0 adds rows, direction 1 adds columns """
+ 
         diff = lcd_dim - image.shape[direction]
+
+        if(direction==0):
+            new_item = np.zeros((diff, self.w, 3), dtype="uint8")
+        else:
+            new_item = np.zeros((self.h, diff, 3), dtype="uint8")
         
-        # Let's remove some cols or rows (or else-if add them)
-        if(diff > 0):
-            #print("Adding col/row. Diff: {}, Axis:{}".format(diff, direction))
-            if(direction==0):
-                new_row = np.zeros((diff, self.w, 3), dtype="uint8")
-                image = np.concatenate((image.copy(), new_row), direction)
-            else:
-                new_col = np.zeros((self.h, diff, 3), dtype="uint8")
-                image = np.concatenate((image.copy(), new_col), direction)
-        elif(diff < 0):
-            #print("Remove col/row. Diff: {}, Axis: {}".format(diff, direction))
-            diff = abs(diff)
-            image = np.delete(image, (range(0, diff)), axis=direction)
+        # Add the array to the image and center image
+        image = np.concatenate((image.copy(), new_item), direction)
+        image = np.roll(image, int(diff / 2), axis=direction)
         
         return image    
           
           
-    def drawimg(self, arrayimg):
+    def drawimg(self, arrayimg, par=1.0):
         """OpenCV and NumPy use (h, w, c) ordering.
         This method will scale down image and swap 
         axis for PyGame surfarray. """
         
+
         # Convert grayscale image to colour
         if(arrayimg.ndim < 3):
             arrayimg = cv2.cvtColor(arrayimg,cv2.COLOR_GRAY2RGB)
             
         arrayimg = cv2.cvtColor(arrayimg, cv2.COLOR_BGR2RGB)
     
+        if (par != 1.0):
+            (height, width) = arrayimg.shape[:2]
+            arrayimg = cv2.resize(arrayimg, (round(width * par), height))
+            
         (height, width) = arrayimg.shape[:2]
         
         # Compare aspect ratio to lcd aspect ratio.
         if( (width/height) >= (self.w/self.h)):
             resized = imutils.resize(arrayimg, width=self.w) 
             if(resized.shape[0] != self.h):
-                resized = self.crop_or_pad(resized, self.h, direction=0)
+                resized = self.pad(resized, self.h, direction=0)
         else:
             resized = imutils.resize(arrayimg, height=self.h)
             if(resized.shape[1] != self.w):
-                resized = self.crop_or_pad(resized, self.w, direction=1)
+                resized = self.pad(resized, self.w, direction=1)
+
 
         pygame.surfarray.blit_array(self.lcd, resized.swapaxes(0,1))
         pygame.display.flip()
