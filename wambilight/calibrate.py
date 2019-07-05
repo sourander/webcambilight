@@ -43,9 +43,8 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimult
     
     # Subtract B&R from G for higher contrast
     (b, g, r) = cv2.split(image)
-    """ ACTIVATE AGAIN WHEN R, G, B images have more difference.
     g = cv2.subtract(cv2.subtract(g, b), r)
-    """
+    
     
     # Blur and find edges.
     g = cv2.GaussianBlur(g,(blur,blur),cv2.BORDER_DEFAULT) 

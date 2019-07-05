@@ -76,5 +76,8 @@ class Hdmi:
 
         pygame.surfarray.blit_array(self.lcd, resized.swapaxes(0,1))
         pygame.display.flip()
+        
+    def quit(self):
+        pygame.display.quit()
 
         

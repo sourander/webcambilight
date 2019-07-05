@@ -3,7 +3,7 @@ import cv2
 
 
 class WebcamVideoStream:
-    def __init__(self, exposure, gain, focus, src=0):
+    def __init__(self, exposure, gain, sat=128, src=0):
         # initialize the video camera stream and read the first frame
         # from the stream
         self.stream = cv2.VideoCapture(src)
@@ -11,12 +11,13 @@ class WebcamVideoStream:
         # Toggle off auto exposure
         self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
         self.stream.set(cv2.CAP_PROP_AUTOFOCUS, 0)
-        self.stream.set(cv2.CAP_PROP_FOCUS, focus)
+        self.stream.set(cv2.CAP_PROP_FOCUS, 15)
         
         self.stream.set(cv2.CAP_PROP_GAIN, gain)
         self.stream.set(cv2.CAP_PROP_EXPOSURE, exposure)
         self.stream.set(cv2.CAP_PROP_AUTO_WB, 0)
-        self.stream.set(cv2.CAP_PROP_TEMPERATURE, 5000)
+        self.stream.set(cv2.CAP_PROP_TEMPERATURE, 6000)
+        self.stream.set(cv2.CAP_PROP_SATURATION, sat)
         
         self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
@@ -51,8 +52,7 @@ class WebcamVideoStream:
         print("Exposure: ", exposure)
         print("White Balance: ", wb)
         
-        print("Focus mode: ", focusmode)
-        print("Focus dist: ", focus)
+
         
     def getres(self):
         width = self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)
