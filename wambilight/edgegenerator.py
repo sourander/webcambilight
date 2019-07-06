@@ -1,12 +1,11 @@
 import numpy as np
 import cv2
 from imutils.perspective import four_point_transform
-from scipy.ndimage.interpolation import shift
 
 
 class Edgegenerator:
-    def __init__(self, verleds, horleds, cornerpoints, blendframes=1):
-        self.pts = cornerpoints
+    def __init__(self, verleds, horleds, blendframes=1):
+        self.pts = None
         # NOTE! Do not count corner LED's twice
         self.vertleds = verleds
         self.horleds = horleds
@@ -24,7 +23,10 @@ class Edgegenerator:
         warped = four_point_transform(image, cornerpoints)
                
         resized = cv2.resize(warped, (self.vertleds, self.horleds+2), 
-                             interpolation = cv2.INTER_CUBIC) 
+                             interpolation = cv2.INTER_CUBIC)
+
+        resized = cv2.GaussianBlur(resized,(5,5),0)
+                             
         return resized
 
 
@@ -46,10 +48,10 @@ class Edgegenerator:
 
 
 
-        
     def set_cornerpoints(self, cornerpoints):
         self.pts = cornerpoints
 
+    """ NOTE! Blending over time drops the FPS quite dramatically """
     def blendhistory(self, new_entry):
         # Blend current edgepixeldata with n-amount of previous
         # images. 
@@ -59,7 +61,7 @@ class Edgegenerator:
         history = self.history
 
         # Nudge history 1 pixel down. Add new entry.
-        history = shift(history, (0,1,0), cval=0)
+        history = np.roll(history, 1, axis=0)
         history[:,:1] = new_entry
                 
         # Setter

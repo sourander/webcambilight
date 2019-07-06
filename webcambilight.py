@@ -1,4 +1,4 @@
-# usage sudo python $(which python) -i webcambilight.py
+# usage sudo python $(which python) webcambilight.py
 
 # Import packages
 import cv2
@@ -21,7 +21,7 @@ def activate_loop():
     global do_the_loop
     do_the_loop = True
 
-def on_press_action(notification):
+def deactivate_loop(notification):
     global do_the_loop
     do_the_loop = False
 
@@ -35,16 +35,21 @@ def run():
     # Initialize objects
     hdmi = Hdmi()
     config = ConfigIO()
+    edge = Edgegenerator(v_leds, h_leds, blendframes=1)
     webcam = WebcamVideoStream(30, 250, 160).start()
+    
+    # Let the camera warm up
     time.sleep(2.0)
 
     # Keyboard hooks
-    keyboard.on_press_key("enter", on_press_action)
+    keyboard.on_press_key("enter", deactivate_loop)
     keyboard.on_press_key("backspace", quit_abmlight)
     
     while(running):
         #hdmi.fill(0,255,0)
         #image = snapshot(330, 5, 250)
+
+        
 
         image = cv2.imread("images/tv-test-1.png") # PTS will succeed
         #image = cv2.imread("images/test.png") # PTS will fail
@@ -60,12 +65,25 @@ def run():
             activate_loop()
         
         if(do_the_loop):
-            print("Entering main loop")
+            # Do once before 'The Loop'
+            print("Changing exposure, gain and sat. Starting 'The Loop'.")
+            webcam.set_exposure(30, 255, 160)
+            edge.set_cornerpoints(pts)
+            fps = FPS().start()
+            
             while(do_the_loop):
                 frame = webcam.read()
-                hdmi.drawimg(frame)
+                edgepixels = edge.generate(frame)
+                #hdmi.drawimg(frame)
+                fps.update()
+            
+            # Perform after exiting 'The Loop'
             print("Exiting the LED loop.")
-              
+            fps.stop()
+            print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
+            print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))  
+    
+    # Perform right before exiting the software
     print("Exiting WebcAmbilight!")
     webcam.stop()
     hdmi.quit()

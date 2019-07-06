@@ -31,7 +31,11 @@ class WebcamVideoStream:
         # initialize the variable used to indicate if the thread should
         # be stopped
         self.stopped = False
-        
+ 
+    def set_exposure(self, exposure, gain, sat):
+        self.stream.set(cv2.CAP_PROP_EXPOSURE, exposure)
+        self.stream.set(cv2.CAP_PROP_GAIN, gain)
+        self.stream.set(cv2.CAP_PROP_SATURATION, sat)
         
     def printspecs(self):
         # List of modes is in url
@@ -52,12 +56,7 @@ class WebcamVideoStream:
         print("Exposure: ", exposure)
         print("White Balance: ", wb)
         
-
-        
-    def getres(self):
-        width = self.stream.get(cv2.CAP_PROP_FRAME_WIDTH)
-        height = self.stream.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        return width, height
+ 
 
     def start(self):
         # start the thread to read frames from the video stream
