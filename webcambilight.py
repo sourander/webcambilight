@@ -16,6 +16,7 @@ total_leds = v_leds + h_leds + 2
 
 do_the_loop = False # Do not change
 running = True # Do not change
+pts = None
 
 def activate_loop():
     global do_the_loop
@@ -23,6 +24,8 @@ def activate_loop():
 
 def deactivate_loop(notification):
     global do_the_loop
+    global pts
+    pts = None
     do_the_loop = False
 
 def quit_abmlight(notification):
@@ -46,27 +49,30 @@ def run():
     keyboard.on_press_key("backspace", quit_abmlight)
     
     while(running):
-        #hdmi.fill(0,255,0)
-        #image = snapshot(330, 5, 250)
-
+        """ If 'pts' has no calibration data, run calibration.
+            Else, run main loop until user presses:
+            
+            'enter'     : to run calibration again 
+            'backspace' : to exit software completely"""
         
-
-        image = cv2.imread("images/tv-test-1.png") # PTS will succeed
-        #image = cv2.imread("images/test.png") # PTS will fail
-
-        pts = calibrate(image, hdmi, image.shape[0], timetohold=2, padding=0,  blur=3, perimultiplier=0.01)
-
         try:
+            global pts
             pts.any()
         except AttributeError:
-            print("Calibration file has no data. Skipping the main loop.")
+            print("Calibration file has no data. Running the calibration again.")
+            webcam.set_exposure(300, 5, 250)
+            image = webcam.read()
+            pts = calibrate(image, hdmi, image.shape[0], timetohold=4, padding=0,  blur=3, perimultiplier=0.01)
         else:
             print("Activating loop.")
             activate_loop()
+            print(pts.shape)
+            print(pts)
         
         if(do_the_loop):
             # Do once before 'The Loop'
             print("Changing exposure, gain and sat. Starting 'The Loop'.")
+            hdmi.drawimg(cv2.imread("images/status-calibration-done.png"))
             webcam.set_exposure(30, 255, 160)
             edge.set_cornerpoints(pts)
             fps = FPS().start()
@@ -74,7 +80,8 @@ def run():
             while(do_the_loop):
                 frame = webcam.read()
                 edgepixels = edge.generate(frame)
-                #hdmi.drawimg(frame)
+                # UPDATE LEDS with edgepixels data
+                hdmi.drawimg(frame)
                 fps.update()
             
             # Perform after exiting 'The Loop'

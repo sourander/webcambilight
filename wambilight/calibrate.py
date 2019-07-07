@@ -38,8 +38,15 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimult
     # image should be in videores (e.g. 720p)
     # calibres : resolution used in this method (e.g. 540p) 
     
+    # Make the TV green
+    hdmi.fill(0,255,0)
+    
+    # Put ratio in memory for pts scaling.
     ratio = image.shape[0] / float(calibres)
+    
+    # Resize image and memorize its area for contour checking.
     image = imutils.resize(image, height = calibres)
+    image_area = image.shape[0] * image.shape[1]
     
     # Subtract B&R from G for higher contrast
     (b, g, r) = cv2.split(image)
@@ -60,7 +67,7 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimult
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, perimultiplier * peri, True)
         print("Amount of corners {}".format(len(approx)))
-        if len(approx) == 4:
+        if len(approx) == 4 and cv2.contourArea(approx) > (image_area*0.05):
             pts = approx
             break
 
