@@ -1,4 +1,4 @@
-# WebcAmbilight
+# Webcambilight
 
 This ambilight clone is meant to work with any TV source, since the screen data is gathered using a Logitech C920 webcam.
 
@@ -15,4 +15,4 @@ Features:
 
 The project is currently in progress.
 
-_Note: sudo rights required_
+_Note: sudo rights required (reason: keyboard and PyGame)_
