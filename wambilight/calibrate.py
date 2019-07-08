@@ -66,7 +66,6 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimult
     for c in cnts:
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, perimultiplier * peri, True)
-        print("Amount of corners {}".format(len(approx)))
         if len(approx) == 4 and cv2.contourArea(approx) > (image_area*0.05):
             pts = approx
             break
@@ -77,13 +76,16 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimult
         cv2.putText(image, "TV here?", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, (0, 255, 255), 2)
     else:
-        print("No TV found in the image. Adjust settings.\nReturning 'None' cornerpoints.")
+        # No TV found. pts = None.
         return None
 
     # Display the image for evaluation
     print("Displaying the calibration image for {} seconds".format(timetohold))
     hdmi.drawimg(image)
     time.sleep(timetohold)
+    
+    # Show image ' Calibration done, enjoy your TV'
+    hdmi.drawimg(cv2.imread("images/status-calibration-done.png"))
 
     # Ratio is used to scale cornerpoint data
     # from calibres -> videores

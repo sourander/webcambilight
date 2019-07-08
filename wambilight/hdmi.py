@@ -16,7 +16,7 @@ class Hdmi:
         pygame.mouse.set_visible(False)
         
         # Get and set width and height
-        print(pygame.display.Info())
+        # print(pygame.display.Info())
         self.w = pygame.display.Info().current_w 
         self.h = pygame.display.Info().current_h 
         self.lcd = pygame.display.set_mode((self.w,self.h), pygame.FULLSCREEN, 24)

@@ -66,13 +66,11 @@ def run():
         else:
             print("Activating loop.")
             activate_loop()
-            print(pts.shape)
-            print(pts)
         
         if(do_the_loop):
             # Do once before 'The Loop'
             print("Changing exposure, gain and sat. Starting 'The Loop'.")
-            hdmi.drawimg(cv2.imread("images/status-calibration-done.png"))
+            
             webcam.set_exposure(30, 255, 160)
             edge.set_cornerpoints(pts)
             fps = FPS().start()
@@ -81,7 +79,7 @@ def run():
                 frame = webcam.read()
                 edgepixels = edge.generate(frame)
                 # UPDATE LEDS with edgepixels data
-                hdmi.drawimg(frame)
+                hdmi.drawimg(frame) # Uncomment to see what camera is seeing
                 fps.update()
             
             # Perform after exiting 'The Loop'
