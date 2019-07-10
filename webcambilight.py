@@ -14,6 +14,10 @@ v_leds = 60 # DO NOT COUNT
 h_leds = 38 # leds in the corner twice!
 total_leds = v_leds + h_leds + 2
 
+blendframes = 3
+blend_inwards = 4
+blur = 5 # odd number!
+
 do_the_loop = False # Do not change
 running = True # Do not change
 pts = None
@@ -38,7 +42,7 @@ def run():
     # Initialize objects
     hdmi = Hdmi()
     config = ConfigIO()
-    edge = Edgegenerator(v_leds, h_leds, blendframes=1)
+    edge = Edgegenerator(v_leds, h_leds, blendframes, blend_inwards, blur)
     webcam = WebcamVideoStream(30, 250, 160).start()
     
     # Let the camera warm up
@@ -79,7 +83,7 @@ def run():
                 frame = webcam.read()
                 edgepixels = edge.generate(frame)
                 # UPDATE LEDS with edgepixels data
-                hdmi.drawimg(frame) # Uncomment to see what camera is seeing
+                # hdmi.drawimg(frame) # Uncomment to see what camera is seeing
                 fps.update()
             
             # Perform after exiting 'The Loop'
