@@ -43,7 +43,7 @@ def run():
     hdmi = Hdmi()
     config = ConfigIO()
     edge = Edgegenerator(v_leds, h_leds, blendframes, blend_inwards, blur)
-    webcam = WebcamVideoStream(30, 250, 160).start()
+    webcam = WebcamVideoStream(30, 255, 160).start()
     
     # Let the camera warm up
     time.sleep(2.0)
@@ -74,7 +74,6 @@ def run():
         if(do_the_loop):
             # Do once before 'The Loop'
             print("Changing exposure, gain and sat. Starting 'The Loop'.")
-            
             webcam.set_exposure(30, 255, 160)
             edge.set_cornerpoints(pts)
             fps = FPS().start()
