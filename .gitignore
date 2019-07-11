@@ -7,3 +7,6 @@ __pycache__/
 images/
 videos/
 config/
+
+# Playground
+/playground.py
