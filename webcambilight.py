@@ -52,6 +52,10 @@ def run():
     keyboard.on_press_key("enter", deactivate_loop)
     keyboard.on_press_key("backspace", quit_abmlight)
     
+    # Get last run's config from wambilight/config/cornerpoint.npy
+    global pts
+    pts = config.get()
+    
     while(running):
         """ If 'pts' has no calibration data, run calibration.
             Else, run main loop until user presses:
@@ -60,7 +64,6 @@ def run():
             'backspace' : to exit software completely"""
         
         try:
-            global pts
             pts.any()
         except AttributeError:
             print("Calibration file has no data. Running the calibration again.")
@@ -92,6 +95,7 @@ def run():
             print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))  
     
     # Perform right before exiting the software
+    config.to_file(pts)
     print("Exiting WebcAmbilight!")
     webcam.stop()
     hdmi.quit()
