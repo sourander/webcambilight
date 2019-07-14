@@ -78,7 +78,7 @@ class Edgegenerator:
         history = self.history
 
         # Nudge history 1 pixel down. Add new entry.
-        history = np.roll(history, 1, axis=0)
+        history = np.roll(history, 1, axis=1)
         history[:,:1] = new_entry
                 
         # Setter
