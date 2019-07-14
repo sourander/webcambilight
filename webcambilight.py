@@ -14,9 +14,9 @@ v_leds = 60 # DO NOT COUNT
 h_leds = 38 # leds in the corner twice!
 total_leds = v_leds + h_leds + 2
 
-blendframes = 3
-blend_inwards = 4
-blur = 5 # odd number!
+blendframes = 1
+blend_inwards = 5
+blur = 11 # odd number!
 
 do_the_loop = False # Do not change
 running = True # Do not change
@@ -83,9 +83,10 @@ def run():
             
             while(do_the_loop):
                 frame = webcam.read()
-                edgepixels = edge.generate(frame)
+                edgepixels, img = edge.generate(frame)
                 # UPDATE LEDS with edgepixels data
                 # hdmi.drawimg(frame) # Uncomment to see what camera is seeing
+                hdmi.drawimg(img) # Uncomment to see TV as seen be Edgepixels instance
                 fps.update()
             
             # Perform after exiting 'The Loop'
