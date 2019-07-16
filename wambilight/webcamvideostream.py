@@ -51,7 +51,7 @@ class WebcamVideoStream:
         focus = self.stream.get(cv2.CAP_PROP_FOCUS)
      
         
-        print("W: {} H: {} @ {}", width, height, fps)
+        print("W: {} H: {} @ {}".format(width, height, fps))
         print("Gain: ", gain)
         print("Exposure: ", exposure)
         print("White Balance: ", wb)

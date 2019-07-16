@@ -12,11 +12,11 @@ import keyboard
 # Global variables
 v_leds = 60 # DO NOT COUNT
 h_leds = 38 # leds in the corner twice!
-total_leds = v_leds + h_leds + 2
+total_leds = (v_leds + h_leds) * 2
 
-blendframes = 1
-blend_inwards = 5
-blur = 11 # odd number!
+blendframes = 3
+blend_inwards = 10
+blur = 17 # odd number!
 
 do_the_loop = False # Do not change
 running = True # Do not change
