@@ -38,16 +38,6 @@ class Edgegenerator:
         average = average.astype('uint8')
         return average
 
-    def generatepreview_leds(self, img, edgepixels):
-        # img is size e.g. 40x60 (v_leds x h_leds)
-        # edgepixels is then: 60x2 + (40-2)*2 = 196
-        # both are (x,y,3) BGR
-        img[:] = 0
-        img[:1, :] = edgepixels[:60,:].transpose(1,0,2) # Top
-        img[1:-1, -1:] = edgepixels[60:98,:] # Right
-        img[-1:, ::-1] = edgepixels[98:158].transpose(1,0,2) # Bottom
-        img[-2:0:-1, :1] = edgepixels[158:]
-        return img
 
     def generate(self, image):
 
@@ -59,10 +49,8 @@ class Edgegenerator:
         if (self.blendamount >= 2):
             edgepixels = self.blendhistory(edgepixels)
         
-        # Wrap edgepixels around img borders FOR DEBUGGING
-        img = self.generatepreview_leds(img, edgepixels)
         
-        return edgepixels, img
+        return edgepixels
 
 
     def set_cornerpoints(self, cornerpoints):
