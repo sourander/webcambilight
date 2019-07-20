@@ -6,8 +6,11 @@ __pycache__/
 # WebcAmbilight test data
 images/
 videos/
-config/
 
 # Playground
 /playground.py
 /buttontest.py
+/rainbow.py
+
+# PTS data
+cornerpoint.npy

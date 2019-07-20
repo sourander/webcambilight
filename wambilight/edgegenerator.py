@@ -8,7 +8,7 @@ class Edgegenerator:
         self.pts = None
         self.vertleds = verleds
         self.horleds = horleds
-        self.led_count = self.vertleds*2 + self.horleds*2
+        self.led_count = self.vertleds + self.horleds*2
         self.blendamount = blendframes
         self.blend_inwards = blend_inwards
         self.blur = blur
@@ -21,18 +21,17 @@ class Edgegenerator:
         # Warp image based on cornerpoint data
         cornerpoints = self.pts
         warped = four_point_transform(image, cornerpoints)
-        resized = cv2.resize(warped, (self.vertleds, self.horleds+2), 
+        resized = cv2.resize(warped, (self.vertleds, self.horleds+1), 
                              interpolation = cv2.INTER_CUBIC)
         resized = cv2.GaussianBlur(resized,(self.blur,self.blur),0)
         return resized
         
         
     def border_average(self, img, avg):
-        # Top, Right-2, Bottom-REVERSED, Left-2-REVERSED
-        edgepixels = np.concatenate((img[:avg,:].transpose(1,0,2),
-                                     img[1:-1,-avg:],
-                                     img[-avg:,::-1].transpose(1,0,2), 
-                                     img[-2:0:-1,:avg]))
+        # Right-1-REVERSED, Top-REVERSED, Left-2
+        edgepixels = np.concatenate((img[-1:0:-1,-avg:],
+                                     img[:avg,::-1].transpose(1,0,2),
+                                     img[1:,:avg]))
                               
         average = np.mean((edgepixels),axis=1, keepdims=True, dtype='uint16')
         average = average.astype('uint8')
@@ -78,34 +77,17 @@ class Edgegenerator:
                 
         return blend
         
-    def lift(image, lift):
-        # Lift black levels without touching whitepoint
-        image16 = image.astype('int16') * (1-(lift/255)) + lift
-        image16 = np.clip(image16, 0, 255)
-        image = image16.astype('uint8')
-        return image
+    def lut_transform(self, image, lut_r, lut_g, lut_b):
         
-    def whitepoint(image, lift):
-        # Change whitepoint
-        image16 = image.astype('int16') * (1+(lift/255))
-        image16 = np.clip(image16, 0, 255)
-        image = image16.astype('uint8')
-        return image
+        b, g, r = cv2.split(image)
         
-    def whitebalance(image, greenred, blueyellow):
-        """
-        Usage: Give negative or positive value to
+        r = cv2.LUT(r, lut_r).astype(np.uint8)
+        g = cv2.LUT(g, lut_g).astype(np.uint8)
+        b = cv2.LUT(b, lut_b).astype(np.uint8)
         
-        -128      ...        127
-        <- (-)  greenred  (+) ->
-        <- (-) blueyellow (+) ->
-        """
-        lab = cv2.cvtColor(image, cv2.COLOR_BGR2Lab).astype('int16')
-        lab[:,:,1] += greenred
-        lab[:,:,2] += blueyellow
-        lab = np.clip(lab, 0, 255).astype('uint8')
-        image = cv2.cvtColor(lab, cv2.COLOR_Lab2BGR)
-        return image
+        merged = cv2.merge((b, g, r))
+        
+        return merged
 
 
     

@@ -7,22 +7,33 @@ from wambilight import Hdmi, Ledupdater, ConfigIO, calibrate
 from wambilight import Edgegenerator
 from wambilight.camsetting import set_exposure, init_settings                       
 import time
-from imutils.video import FPS
-import keyboard
-
+import os
+# from imutils.video import FPS
+import RPi.GPIO as GPIO  
 
 # Global variables
-v_leds = 35 # DO NOT COUNT
+v_leds = 39 # DO NOT COUNT
 h_leds = 22 # leds in the corner twice!
-total_leds = 22 # Change to actual value
+total_leds = 83 # Change to actual value
 
-blendframes = 1
-blend_inwards = 3
-blur = 11 # odd number!
+# Set up GPIO pins
+GPIO.setmode(GPIO.BCM) 
+blue_btn = 5
+red_btn = 6
 
-do_the_loop = False # Do not change
-running = True # Do not change
+# Image Blending options
+blendframes = 5
+blend_inwards = 4
+blur = 15 # odd number!
+
+# Do not change these
+do_the_loop = False
+running = True
 pts = None
+GPIO.setup(blue_btn, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(red_btn, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
+
+
 
 def activate_loop():
     global do_the_loop
@@ -50,27 +61,22 @@ def run():
     # Video Capture
     webcam = cv2.VideoCapture(0)
     init_settings(webcam)
-   
+
     # Let the camera warm up
     time.sleep(2.0)
 
-    # Keyboard hooks
-    keyboard.on_press_key("enter", deactivate_loop)
-    keyboard.on_press_key("backspace", quit_abmlight)
-    
     # Get last run's config from wambilight/config/cornerpoint.npy
     global pts
     pts = config.get()
-    
+    lut_r, lut_g, lut_b = config.get_luts()
 
 
     while(running):
         """ If 'pts' has no calibration data, run calibration.
-            Else, run main loop until user presses:
+        Else, run main loop until user presses:
             
-            'enter'     : to run calibration again 
-            'backspace' : to exit software completely"""
-        
+        'Blue button' : to run calibration again 
+        'Red button'  : to exit software completely """               
         try:
             pts.any()
         except AttributeError:
@@ -82,16 +88,17 @@ def run():
         else:
             print("Activating loop.")
             activate_loop()
-        
+
+
+
         if(do_the_loop):
-            # Do once before 'The Loop'
+            # Do once before endless loop
             print("Changing exposure, gain and sat. Starting 'The Loop'.")
             set_exposure(webcam, 30, 255, 160)
             edge.set_cornerpoints(pts)
             
-            # For debugging. Start FPS counter.
-            fps = FPS().start()
             
+            # The loop
             while(do_the_loop):
                 # Grab a frame from the webcam
                 (grabbed, frame) = webcam.read()
@@ -99,19 +106,22 @@ def run():
                 # Calculate edge pixels
                 edgepixels = edge.generate(frame)
                 
+                # Apply LUT magic
+                edgepixels = edge.lut_transform(edgepixels, lut_r, lut_g, lut_b)
+                
                 # UPDATE LEDS with edgepixels data
                 leds.to_color(edgepixels)
                 
-                # For debugging. Update FPS.
-                fps.update()
+                if GPIO.input(red_btn):
+                    quit_abmlight("RED button")
+                
+                if GPIO.input(blue_btn):
+                    deactivate_loop("BLUE button")
+            
             
             # Perform after exiting 'The Loop'
             print("Exiting the LED loop.")
             
-            # For debugging. Show FPS.
-            fps.stop()
-            print("[INFO] elasped time: {:.2f}".format(fps.elapsed()))
-            print("[INFO] approx. FPS: {:.2f}".format(fps.fps()))  
     
     # Perform right before exiting the software
     config.to_file(pts)

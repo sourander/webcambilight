@@ -40,3 +40,9 @@ class ConfigIO():
             os.remove(self.filepath)
         else:
             print("ConfigIO delete:{} file not found".format(self.filepath))
+            
+    def get_luts(self):
+        lut_r = np.load(os.path.join(self.configdir, "lut_r.npy"))
+        lut_g = np.load(os.path.join(self.configdir, "lut_g.npy"))
+        lut_b = np.load(os.path.join(self.configdir, "lut_b.npy"))
+        return lut_r, lut_g, lut_b
