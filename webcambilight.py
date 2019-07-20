@@ -4,7 +4,7 @@
 import cv2
 import imutils
 from wambilight import Hdmi, Ledupdater, ConfigIO, calibrate
-from wambilight import Edgegenerator
+from wambilight import Edgegenerator, WebcamVideoStream
 from wambilight.camsetting import set_exposure, init_settings                       
 import time
 import os
@@ -22,7 +22,7 @@ blue_btn = 5
 red_btn = 6
 
 # Image Blending options
-blendframes = 5
+blendframes = 6
 blend_inwards = 4
 blur = 15 # odd number!
 
@@ -58,9 +58,12 @@ def run():
     edge = Edgegenerator(v_leds, h_leds, blendframes, blend_inwards, blur)
     leds = Ledupdater(total_leds)
     
-    # Video Capture
-    webcam = cv2.VideoCapture(0)
-    init_settings(webcam)
+    # Video Capture (linear capture)
+    # webcam = cv2.VideoCapture(0)
+    # init_settings(webcam)
+
+    # Threading version
+    webcam = WebcamVideoStream(30, 255, 160).start()
 
     # Let the camera warm up
     time.sleep(2.0)
@@ -81,7 +84,11 @@ def run():
             pts.any()
         except AttributeError:
             print("Calibration file has no data. Running the calibration again.")
-            set_exposure(webcam, 300, 5, 250)
+            
+            
+            webcam.set_exposure(300, 5, 250)
+            #set_exposure(webcam, 300, 5, 250)
+            
             leds.clear()
             (grabbed, image) = webcam.read()
             pts = calibrate(image, hdmi, image.shape[0], timetohold=4, padding=0,  blur=3, perimultiplier=0.01)
@@ -94,14 +101,16 @@ def run():
         if(do_the_loop):
             # Do once before endless loop
             print("Changing exposure, gain and sat. Starting 'The Loop'.")
-            set_exposure(webcam, 30, 255, 160)
+            webcam.set_exposure(30, 255, 160)
+            # set_exposure(webcam, 30, 255, 160)
             edge.set_cornerpoints(pts)
             
             
             # The loop
             while(do_the_loop):
                 # Grab a frame from the webcam
-                (grabbed, frame) = webcam.read()
+                frame = webcam.read()
+                #(grabbed, frame) = webcam.read()
                 
                 # Calculate edge pixels
                 edgepixels = edge.generate(frame)
@@ -126,7 +135,8 @@ def run():
     # Perform right before exiting the software
     config.to_file(pts)
     print("Exiting WebcAmbilight!")
-    webcam.release()
+    webcam.stop()
+    # webcam.release()
     leds.clear()
     hdmi.quit()
     
