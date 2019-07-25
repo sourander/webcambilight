@@ -3,14 +3,9 @@ __pycache__/
 *.py[cod
 *$py.class
 
-# WebcAmbilight test data
-images/
-videos/
 
 # Playground
 /playground.py
-/buttontest.py
-/rainbow.py
 
 # PTS data
 cornerpoint.npy
