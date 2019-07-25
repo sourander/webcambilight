@@ -19,3 +19,4 @@ def set_exposure(webcam, exposure, gain, sat):
     webcam.set(cv2.CAP_PROP_EXPOSURE, exposure)
     webcam.set(cv2.CAP_PROP_GAIN, gain)
     webcam.set(cv2.CAP_PROP_SATURATION, sat)
+    

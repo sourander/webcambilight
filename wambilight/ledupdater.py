@@ -25,10 +25,13 @@ class Ledupdater:
         
 
     def process_pixels(self, pixelrow):
+                
         for led in range(self.led_count):
             r = int(pixelrow[led,0,:][2])
             g = int(pixelrow[led,0,:][1])
             b = int(pixelrow[led,0,:][0])
+
+
             self.pixels.set_pixel_rgb(led, r, g, b)
         # Update LEDs
         self.pixels.show()

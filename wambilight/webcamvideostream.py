@@ -9,6 +9,10 @@ class WebcamVideoStream:
         self.stream = cv2.VideoCapture(src)
         
         # Toggle off auto exposure
+        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 176)
+        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 144)
+        self.stream.set(cv2.CAP_PROP_FPS , 30)
+        
         self.stream.set(cv2.CAP_PROP_AUTO_EXPOSURE, 1)
         self.stream.set(cv2.CAP_PROP_AUTOFOCUS, 0)
         self.stream.set(cv2.CAP_PROP_FOCUS, 15)
@@ -19,9 +23,7 @@ class WebcamVideoStream:
         self.stream.set(cv2.CAP_PROP_TEMPERATURE, 6000)
         self.stream.set(cv2.CAP_PROP_SATURATION, sat)
         
-        self.stream.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-        self.stream.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-        self.stream.set(cv2.CAP_PROP_FPS , 30)
+
         
 
         (self.grabbed, self.frame) = self.stream.read()
@@ -56,7 +58,6 @@ class WebcamVideoStream:
         print("Exposure: ", exposure)
         print("White Balance: ", wb)
         
- 
 
     def start(self):
         # start the thread to read frames from the video stream

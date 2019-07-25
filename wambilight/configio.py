@@ -45,4 +45,6 @@ class ConfigIO():
         lut_r = np.load(os.path.join(self.configdir, "lut_r.npy"))
         lut_g = np.load(os.path.join(self.configdir, "lut_g.npy"))
         lut_b = np.load(os.path.join(self.configdir, "lut_b.npy"))
-        return lut_r, lut_g, lut_b
+        lut_s = np.load(os.path.join(self.configdir, "lut_s.npy"))
+        return lut_r, lut_g, lut_b, lut_s
+        

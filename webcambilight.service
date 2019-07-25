@@ -1,0 +1,11 @@
+[Unit]
+Description=Webcambilight
+After=network.target
+
+[Service]
+Type=idle
+ExecStart=/home/pi/.virtualenvs/py3cv4/bin/python webcambilight.py
+WorkingDirectory=/home/pi/webcambilight
+
+[Install]
+WantedBy=multi-user.target

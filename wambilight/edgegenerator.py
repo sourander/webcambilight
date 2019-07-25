@@ -28,8 +28,8 @@ class Edgegenerator:
         
         
     def border_average(self, img, avg):
-        # Right-1-REVERSED, Top-REVERSED, Left-2
-        edgepixels = np.concatenate((img[-1:0:-1,-avg:],
+        # Right-1-REVERSED, Top-REVERSED, Left-1
+        edgepixels = np.concatenate((img[:0:-1,-avg:],
                                      img[:avg,::-1].transpose(1,0,2),
                                      img[1:,:avg]))
                               
@@ -39,7 +39,7 @@ class Edgegenerator:
 
 
     def generate(self, image):
-
+        # Warp the image. Rescale to M*N
         img = self.warpandresize(image)
         
         # Grab edge pixels into an array (leds * 1 * 3)
@@ -55,7 +55,7 @@ class Edgegenerator:
     def set_cornerpoints(self, cornerpoints):
         self.pts = cornerpoints
 
-    """ NOTE! Blending over time drops the FPS quite dramatically """
+
     def blendhistory(self, new_entry):
         # Blend current edgepixeldata with n-amount of previous
         # images. 
@@ -78,17 +78,26 @@ class Edgegenerator:
         return blend
         
     def lut_transform(self, image, lut_r, lut_g, lut_b):
-        
+
         b, g, r = cv2.split(image)
         
         r = cv2.LUT(r, lut_r).astype(np.uint8)
         g = cv2.LUT(g, lut_g).astype(np.uint8)
         b = cv2.LUT(b, lut_b).astype(np.uint8)
-        
+                
         merged = cv2.merge((b, g, r))
         
         return merged
 
 
+    def saturation(self, image, lut_s):
+        h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
     
+        s = cv2.LUT(s, lut_s).astype(np.uint8)
+    
+        merged = cv2.cvtColor(cv2.merge((h, s, v)), cv2.COLOR_HSV2BGR)
+        
+        return merged
+        
 
+        

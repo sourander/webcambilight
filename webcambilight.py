@@ -5,7 +5,7 @@ import cv2
 import imutils
 from wambilight import Hdmi, Ledupdater, ConfigIO, calibrate
 from wambilight import Edgegenerator, WebcamVideoStream
-from wambilight.camsetting import set_exposure, init_settings                       
+# from wambilight.camsetting import set_exposure, init_settings                       
 import time
 import os
 # from imutils.video import FPS
@@ -22,9 +22,9 @@ blue_btn = 5
 red_btn = 6
 
 # Image Blending options
-blendframes = 6
-blend_inwards = 4
-blur = 15 # odd number!
+blendframes = 8
+blend_inwards = 7
+blur = 9 # odd number!
 
 # Do not change these
 do_the_loop = False
@@ -71,7 +71,7 @@ def run():
     # Get last run's config from wambilight/config/cornerpoint.npy
     global pts
     pts = config.get()
-    lut_r, lut_g, lut_b = config.get_luts()
+    lut_r, lut_g, lut_b, lut_s = config.get_luts()
 
 
     while(running):
@@ -90,7 +90,8 @@ def run():
             #set_exposure(webcam, 300, 5, 250)
             
             leds.clear()
-            (grabbed, image) = webcam.read()
+            # (grabbed, image) = webcam.read()
+            image = webcam.read()
             pts = calibrate(image, hdmi, image.shape[0], timetohold=4, padding=0,  blur=3, perimultiplier=0.01)
         else:
             print("Activating loop.")
@@ -115,7 +116,9 @@ def run():
                 # Calculate edge pixels
                 edgepixels = edge.generate(frame)
                 
+                
                 # Apply LUT magic
+                edgepixels = edge.saturation(edgepixels, lut_s)
                 edgepixels = edge.lut_transform(edgepixels, lut_r, lut_g, lut_b)
                 
                 # UPDATE LEDS with edgepixels data
