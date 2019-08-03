@@ -22,6 +22,8 @@ Usage:
 
 For further information, check this document: https://sway.office.com/tqb611MrFPdCkPQu
 
+The link has pretty pictures too.
+
 _Note: sudo rights required (reason: PyGame)_
 
 ## Installation
@@ -32,7 +34,7 @@ For installing the WS2801 LED strip, check the Sway document above.
 
 For installing OpenCV on Raspberry, check this guide by Adrian Rosebrock: https://www.pyimagesearch.com/2018/09/26/install-opencv-4-on-your-raspberry-pi/
 
-I was running OpenCV 4.1.0 while writing the code. My Python version was 3.5. 
+I was running OpenCV 4.1.0 while writing the code. Python version 3.5.
 
 ### 
 
@@ -50,6 +52,23 @@ If PyGame gives you any errors, you might have to install some missing dependenc
 sudo apt-get install libsdl1.2-dev libportmidi-dev \
 libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev \
 libsmpeg-dev 
+```
+
+### HDMI settings
+
+If you boot RasPi without HDMI being plugged in, you might run into problems with HDMI resolution. Thus, it is a good idea to edit /boot/config.txt (with sudo):
+
+
+The config below will force 1080p60 mode without overscan. If your TV doesn't support this, or you are unsure about it, check the EDID data using this guide before proceeding: https://www.opentechguides.com/how-to/article/raspberry-pi/28/raspi-display-setting.html
+
+Find these lines, uncomment them and check that the values are what they need to be.
+
+```
+hdmi_force_hotplug=1
+disable_overscan=1
+hdmi_group=1
+hdmi_mode=16
+
 ```
 
 ### Systemd service
