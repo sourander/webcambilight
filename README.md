@@ -43,7 +43,7 @@ I was running OpenCV 4.1.0 while writing the code. Python version 3.5.
 After you have Git Cloned this project, run:
 
 ```
-pip install requirements.txt
+pip install -r requirements.txt
 ```
 
 If PyGame gives you any errors, you might have to install some missing dependencies. I needed these:
