@@ -4,8 +4,8 @@ After=network.target
 
 [Service]
 Type=idle
-ExecStart=/home/pi/.virtualenvs/py3cv4/bin/python webcambilight.py
 WorkingDirectory=/home/pi/webcambilight
+ExecStart=/home/pi/.virtualenvs/py3cv4/bin/python -u webcambilight.py
 
 [Install]
 WantedBy=multi-user.target

@@ -6,6 +6,8 @@ __pycache__/
 
 # Playground
 /playground.py
+/help.txt
 
 # PTS data
 cornerpoint.npy
+

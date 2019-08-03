@@ -1,15 +1,14 @@
-# usage sudo python $(which python) webcambilight.py
 
 # Import packages
 import cv2
 import imutils
 from wambilight import Hdmi, Ledupdater, ConfigIO, calibrate
-from wambilight import Edgegenerator, WebcamVideoStream
-# from wambilight.camsetting import set_exposure, init_settings                       
+from wambilight import Edgegenerator, WebcamVideoStream                     
 import time
 import os
-# from imutils.video import FPS
-import RPi.GPIO as GPIO  
+import RPi.GPIO as GPIO
+# Testing systemd fix
+import signal
 
 # Global variables
 v_leds = 39 # DO NOT COUNT
@@ -33,7 +32,8 @@ pts = None
 GPIO.setup(blue_btn, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(red_btn, GPIO.IN, pull_up_down=GPIO.PUD_DOWN) 
 
-
+def handler(signum, frame):
+    pass
 
 def activate_loop():
     global do_the_loop
@@ -54,15 +54,12 @@ def quit_abmlight(notification):
 def run():
     # Initialize objects
     hdmi = Hdmi()
+    # hdmi = "This doesnt work with systemd? Or screen?"
     config = ConfigIO()
     edge = Edgegenerator(v_leds, h_leds, blendframes, blend_inwards, blur)
     leds = Ledupdater(total_leds)
     
-    # Video Capture (linear capture)
-    # webcam = cv2.VideoCapture(0)
-    # init_settings(webcam)
-
-    # Threading version
+    # Threading webcam
     webcam = WebcamVideoStream(30, 255, 160).start()
 
     # Let the camera warm up
@@ -80,6 +77,7 @@ def run():
             
         'Blue button' : to run calibration again 
         'Red button'  : to exit software completely """               
+        
         try:
             pts.any()
         except AttributeError:
@@ -87,10 +85,8 @@ def run():
             
             
             webcam.set_exposure(300, 5, 250)
-            #set_exposure(webcam, 300, 5, 250)
             
             leds.clear()
-            # (grabbed, image) = webcam.read()
             image = webcam.read()
             pts = calibrate(image, hdmi, image.shape[0], timetohold=4, padding=0,  blur=3, perimultiplier=0.01)
         else:
@@ -103,7 +99,6 @@ def run():
             # Do once before endless loop
             print("Changing exposure, gain and sat. Starting 'The Loop'.")
             webcam.set_exposure(30, 255, 160)
-            # set_exposure(webcam, 30, 255, 160)
             edge.set_cornerpoints(pts)
             
             
@@ -111,7 +106,6 @@ def run():
             while(do_the_loop):
                 # Grab a frame from the webcam
                 frame = webcam.read()
-                #(grabbed, frame) = webcam.read()
                 
                 # Calculate edge pixels
                 edgepixels = edge.generate(frame)
@@ -139,9 +133,15 @@ def run():
     config.to_file(pts)
     print("Exiting WebcAmbilight!")
     webcam.stop()
-    # webcam.release()
+    time.sleep(0.2)
+    webcam.release()
     leds.clear()
-    hdmi.quit()
+    # hdmi.quit()
+    
+    # Power off!
+    os.system("poweroff")
+    
     
 if __name__ == "__main__":
+    signal.signal(signal.SIGHUP, handler)
     run()

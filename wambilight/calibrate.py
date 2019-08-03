@@ -39,7 +39,7 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimult
     # calibres : resolution used in this method (e.g. 540p) 
     
     # Make the TV green
-    hdmi.fill(0,255,0)
+    # hdmi.fill(0,255,0)
     
     # Put ratio in memory for pts scaling.
     ratio = image.shape[0] / float(calibres)
@@ -81,11 +81,11 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimult
 
     # Display the image for evaluation
     print("Displaying the calibration image for {} seconds".format(timetohold))
-    hdmi.drawimg(image)
+    # hdmi.drawimg(image)
     time.sleep(timetohold)
     
     # Show image ' Calibration done, enjoy your TV'
-    hdmi.drawimg(cv2.imread("images/status-calibration-done.png"))
+    # hdmi.drawimg(cv2.imread("images/status-calibration-done.png"))
 
     # Ratio is used to scale cornerpoint data
     # from calibres -> videores
