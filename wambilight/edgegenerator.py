@@ -94,6 +94,9 @@ class Edgegenerator:
         h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
     
         s = cv2.LUT(s, lut_s).astype(np.uint8)
+        
+        # Adjust hue
+        h = h + 7
     
         merged = cv2.cvtColor(cv2.merge((h, s, v)), cv2.COLOR_HSV2BGR)
         

@@ -7,7 +7,6 @@ from wambilight import Edgegenerator, WebcamVideoStream
 import time
 import os
 import RPi.GPIO as GPIO
-# Testing systemd fix
 import signal
 
 # Global variables
@@ -54,7 +53,6 @@ def quit_abmlight(notification):
 def run():
     # Initialize objects
     hdmi = Hdmi()
-    # hdmi = "This doesnt work with systemd? Or screen?"
     config = ConfigIO()
     edge = Edgegenerator(v_leds, h_leds, blendframes, blend_inwards, blur)
     leds = Ledupdater(total_leds)
@@ -98,7 +96,7 @@ def run():
         if(do_the_loop):
             # Do once before endless loop
             print("Changing exposure, gain and sat. Starting 'The Loop'.")
-            webcam.set_exposure(30, 255, 160)
+            webcam.set_exposure(30, 255, 165)
             edge.set_cornerpoints(pts)
             
             
@@ -124,9 +122,6 @@ def run():
                 if GPIO.input(blue_btn):
                     deactivate_loop("BLUE button")
             
-            
-            # Perform after exiting 'The Loop'
-            print("Exiting the LED loop.")
             
     
     # Perform right before exiting the software
