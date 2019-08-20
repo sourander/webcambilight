@@ -90,17 +90,35 @@ class Edgegenerator:
         return merged
 
 
-    def saturation(self, image, lut_s):
+    def saturation(self, image, lut_s, hueshift=0):
         h, s, v = cv2.split(cv2.cvtColor(image, cv2.COLOR_BGR2HSV))
     
         s = cv2.LUT(s, lut_s).astype(np.uint8)
         
         # Adjust hue
-        h = h + 7
+        h = self.hue(h, hueshift)
     
         merged = cv2.cvtColor(cv2.merge((h, s, v)), cv2.COLOR_HSV2BGR)
         
         return merged
         
+    
+    def hue(self, h, shift):
+        # 180 to 360 range in 16-bit
+        h = h.astype('uint16')
+        h = h * 2
+
+        # Nudge hue
+        h = h + (shift * 2)
+
+        # Find cells where value is larger than 180
+        h[h > 360] = h[h > 360] - 360
+        h[h < 0] = h[h < 0] + 360
+
+
+        # 360 back to 180 in 8-bit
+        h = (h / 2).astype('uint8')
+        
+        return h
 
         

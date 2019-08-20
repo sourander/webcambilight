@@ -110,7 +110,7 @@ def run():
                 
                 
                 # Apply LUT magic
-                edgepixels = edge.saturation(edgepixels, lut_s)
+                edgepixels = edge.saturation(edgepixels, lut_s, hueshift=7)
                 edgepixels = edge.lut_transform(edgepixels, lut_r, lut_g, lut_b)
                 
                 # UPDATE LEDS with edgepixels data
