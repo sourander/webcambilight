@@ -54,6 +54,17 @@ libsdl-image1.2-dev libsdl-mixer1.2-dev libsdl-ttf2.0-dev \
 libsmpeg-dev 
 ```
 
+### SPI
+
+In order to use the hardware SPI controller, you must enable it. Type:
+
+```
+sudo raspi-config
+```
+
+...and find the setting from Interfacing Options. Enable it. After a reboot, /dev/spidev0.0/ will exist on your system.
+
+
 ### HDMI settings
 
 If you boot RasPi without HDMI being plugged in, you might run into problems with HDMI resolution. Thus, it is a good idea to edit /boot/config.txt (with sudo):
