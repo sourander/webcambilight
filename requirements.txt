@@ -11,7 +11,7 @@ matplotlib==3.0.3
 networkx==2.3
 numpy==1.16.4
 picamera==1.13
-Pillow==6.0.0
+Pillow
 pygame==1.9.6
 pyparsing==2.4.0
 python-dateutil==2.8.0
