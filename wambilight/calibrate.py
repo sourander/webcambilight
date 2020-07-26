@@ -75,6 +75,7 @@ def calibrate(image, hdmi, calibres, timetohold = 4, padding=0, blur=3, perimult
         (x, y, w, h) = cv2.boundingRect(approx)
         cv2.putText(image, "TV here?", (x, y - 10), cv2.FONT_HERSHEY_SIMPLEX,
                     0.5, (0, 255, 255), 2)
+        cv2.imwrite("images/status-calibration-done.png", image)
     else:
         # No TV found. pts = None.
         return None
