@@ -9,7 +9,7 @@ keyboard==0.13.3
 kiwisolver==1.1.0
 matplotlib==3.0.3
 networkx==2.3
-numpy==1.16.4
+numpy==1.22.0
 picamera==1.13
 Pillow
 pygame==1.9.6
